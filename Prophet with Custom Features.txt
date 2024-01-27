@@ -1,0 +1,30 @@
+import pandas as pd
+from fbprophet import Prophet
+
+# Generate synthetic weather data for demonstration
+np.random.seed(42)
+days = 30
+dates = [datetime(2024, 1, 1) + timedelta(days=i) for i in range(days)]
+temperatures = np.random.randint(0, 30, days)
+
+# Create a DataFrame with custom features for Prophet
+data = pd.DataFrame({'ds': dates, 'y': temperatures})
+data['custom_feature'] = np.sin(np.arange(len(data)))
+
+# Create and fit the Prophet model with custom features
+model = Prophet()
+model.add_regressor('custom_feature')
+model.fit(data)
+
+# Create a DataFrame for future dates with custom features
+future_dates = model.make_future_dataframe(periods=7)
+future_dates = future_dates.tail(7)
+future_dates['custom_feature'] = np.sin(np.arange(len(data), len(data) + 7))
+
+# Make predictions for the next 7 days
+forecast = model.predict(future_dates)
+
+# Plot the results
+fig = model.plot(forecast)
+plt.title("Weather Prediction for the Next 7 Days (Prophet with Custom Features)")
+plt.show()
